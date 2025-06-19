@@ -1,133 +1,331 @@
 
-// Add interactive functionality to the heading words
+// Global variables
+let currentPage = 1;
+let darkMode = false;
+let currentSlide = 0;
+let currentTab = 'Billing';
+let currentCustomerTab = 'PERPLEXITY';
+let isPlaying = false;
+let loadingTime = 0;
+let charts = {};
+
+// Slides data
+const slides = [
+    "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop"
+];
+
+// Chart data
+const chartData = {
+    bar: {
+        labels: ['Asia', 'Europe', 'Americas', 'Africa', 'Oceania'],
+        datasets: [{
+            label: 'Population (millions)',
+            data: [4641, 747, 1018, 1340, 45],
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(255, 205, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)'
+            ]
+        }]
+    },
+    pie: {
+        labels: ['Housing', 'Food', 'Transportation', 'Entertainment', 'Other'],
+        datasets: [{
+            data: [30, 25, 20, 15, 10],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+        }]
+    },
+    line: {
+        labels: ['2000', '2005', '2010', '2015', '2020', '2025'],
+        datasets: [{
+            label: 'Growth Trend',
+            data: [10, 25, 40, 60, 80, 95],
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1,
+            fill: false
+        }]
+    }
+};
+
+// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    const words = document.querySelectorAll('.word');
+    initializeLoader();
+    initializeEventListeners();
+    loadTheme();
+});
+
+// Loading screen functionality
+function initializeLoader() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const mainContent = document.getElementById('main-content');
+    const loadingTimeElement = document.getElementById('loading-time');
+    const loadingLetter = document.getElementById('loading-letter');
     
-    // Add click animation to words
-    words.forEach(word => {
-        word.addEventListener('click', function() {
-            // Add a pulse effect on click
-            this.style.transform = 'scale(1.2)';
-            this.style.color = '#fab1a0';
-            
-            setTimeout(() => {
-                this.style.transform = '';
-                this.style.color = '';
-            }, 200);
+    // Start timer
+    const timer = setInterval(() => {
+        loadingTime += 0.1;
+        loadingTimeElement.textContent = loadingTime.toFixed(1) + 'ms';
+    }, 100);
+
+    // Show L after 500ms
+    setTimeout(() => {
+        loadingLetter.classList.remove('hidden');
+    }, 500);
+
+    // Complete loading after 3 seconds
+    setTimeout(() => {
+        clearInterval(timer);
+        loadingScreen.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        showPage(1);
+        initializeCharts();
+    }, 3000);
+}
+
+// Initialize event listeners
+function initializeEventListeners() {
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
+
+    // Navigation buttons
+    document.querySelectorAll('.nav-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const page = parseInt(e.currentTarget.getAttribute('data-page'));
+            showPage(page);
         });
+    });
+
+    // Page dots
+    document.querySelectorAll('.page-dot').forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            const page = parseInt(e.currentTarget.getAttribute('data-page'));
+            showPage(page);
+        });
+    });
+
+    // Slide navigation
+    document.getElementById('prev-slide')?.addEventListener('click', prevSlide);
+    document.getElementById('next-slide')?.addEventListener('click', nextSlide);
+
+    // Slide indicators
+    document.querySelectorAll('.slide-indicator').forEach(indicator => {
+        indicator.addEventListener('click', (e) => {
+            const slide = parseInt(e.currentTarget.getAttribute('data-slide'));
+            goToSlide(slide);
+        });
+    });
+
+    // Chart hover effects
+    setupChartHoverEffects();
+}
+
+// Chart hover effects
+function setupChartHoverEffects() {
+    document.querySelectorAll('.chart-hover-card').forEach(card => {
+        card.addEventListener('mouseenter', (e) => {
+            const chartType = e.currentTarget.getAttribute('data-chart');
+            showHoverChart(chartType);
+        });
+    });
+}
+
+// Show hover chart
+function showHoverChart(type) {
+    const canvasId = `${type}-chart`;
+    const canvas = document.getElementById(canvasId);
+    
+    if (canvas && !charts[canvasId]) {
+        const ctx = canvas.getContext('2d');
         
-        // Add mouse enter effect with slight delay for smoother animation
-        word.addEventListener('mouseenter', function() {
-            // Create a ripple effect
-            const ripple = document.createElement('span');
-            ripple.style.position = 'absolute';
-            ripple.style.width = '100%';
-            ripple.style.height = '100%';
-            ripple.style.background = 'radial-gradient(circle, rgba(255,234,167,0.3) 0%, transparent 70%)';
-            ripple.style.top = '0';
-            ripple.style.left = '0';
-            ripple.style.borderRadius = '50%';
-            ripple.style.transform = 'scale(0)';
-            ripple.style.animation = 'ripple 0.6s ease-out';
-            ripple.style.pointerEvents = 'none';
-            ripple.style.zIndex = '-1';
-            
-            this.appendChild(ripple);
-            
-            setTimeout(() => {
-                if (ripple.parentNode) {
-                    ripple.parentNode.removeChild(ripple);
-                }
-            }, 600);
-        });
-    });
-    
-    // Add scroll-triggered animations for stat cards
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-    
-    // Observe stat cards for scroll animations
-    const statCards = document.querySelectorAll('.stat-card');
-    statCards.forEach(card => {
-        observer.observe(card);
-    });
-    
-    // Add sparkle effect on stat card hover
-    const statCardsForSparkle = document.querySelectorAll('.stat-card');
-    statCardsForSparkle.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            createSparkles(this);
-        });
-    });
-    
-    function createSparkles(element) {
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                const sparkle = document.createElement('div');
-                sparkle.innerHTML = '✨';
-                sparkle.style.position = 'absolute';
-                sparkle.style.pointerEvents = 'none';
-                sparkle.style.zIndex = '1000';
-                sparkle.style.fontSize = '12px';
-                sparkle.style.animation = 'sparkle 1s ease-out forwards';
-                
-                const rect = element.getBoundingClientRect();
-                sparkle.style.left = Math.random() * rect.width + rect.left + 'px';
-                sparkle.style.top = Math.random() * rect.height + rect.top + 'px';
-                
-                document.body.appendChild(sparkle);
-                
-                setTimeout(() => {
-                    if (sparkle.parentNode) {
-                        sparkle.parentNode.removeChild(sparkle);
+        const config = {
+            type: type,
+            data: chartData[type],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: type.charAt(0).toUpperCase() + type.slice(1) + ' Chart'
                     }
-                }, 1000);
-            }, i * 100);
+                }
+            }
+        };
+
+        charts[canvasId] = new Chart(ctx, config);
+    }
+}
+
+// Initialize charts
+function initializeCharts() {
+    // Charts will be created on hover
+}
+
+// Theme management
+function toggleDarkMode() {
+    darkMode = !darkMode;
+    saveTheme();
+    applyTheme();
+}
+
+function loadTheme() {
+    const savedMode = localStorage.getItem('darkMode');
+    if (savedMode) {
+        darkMode = JSON.parse(savedMode);
+        applyTheme();
+    }
+}
+
+function saveTheme() {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+}
+
+function applyTheme() {
+    const mainContent = document.getElementById('main-content');
+    const moonIcon = document.getElementById('moon-icon');
+    const sunIcon = document.getElementById('sun-icon');
+
+    if (darkMode) {
+        mainContent.classList.remove('bg-gradient-to-br', 'from-blue-900', 'via-blue-800', 'to-blue-900');
+        mainContent.classList.add('bg-slate-900');
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+    } else {
+        mainContent.classList.remove('bg-slate-900');
+        mainContent.classList.add('bg-gradient-to-br', 'from-blue-900', 'via-blue-800', 'to-blue-900');
+        moonIcon.classList.remove('hidden');
+        sunIcon.classList.add('hidden');
+    }
+}
+
+// Page navigation
+function showPage(pageNumber) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+
+    // Show selected page
+    const targetPage = document.getElementById(`page-${pageNumber}`);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        currentPage = pageNumber;
+    }
+
+    // Update page dots
+    updatePageDots();
+}
+
+function updatePageDots() {
+    document.querySelectorAll('.page-dot').forEach(dot => {
+        const page = parseInt(dot.getAttribute('data-page'));
+        if (page === currentPage) {
+            dot.classList.remove('bg-opacity-30', 'hover:bg-opacity-50');
+            dot.classList.add('bg-white');
+        } else {
+            dot.classList.remove('bg-white');
+            dot.classList.add('bg-opacity-30', 'hover:bg-opacity-50');
         }
+    });
+}
+
+// Slide functionality
+function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    updateSlide();
+}
+
+function prevSlide() {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    updateSlide();
+}
+
+function goToSlide(slideIndex) {
+    currentSlide = slideIndex;
+    updateSlide();
+}
+
+function updateSlide() {
+    const currentSlideImg = document.getElementById('current-slide');
+    if (currentSlideImg) {
+        currentSlideImg.src = slides[currentSlide];
+        currentSlideImg.alt = `Slide ${currentSlide + 1}`;
+    }
+
+    // Update indicators
+    document.querySelectorAll('.slide-indicator').forEach((indicator, index) => {
+        if (index === currentSlide) {
+            indicator.classList.remove('bg-gray-300');
+            indicator.classList.add('bg-blue-500');
+        } else {
+            indicator.classList.remove('bg-blue-500');
+            indicator.classList.add('bg-gray-300');
+        }
+    });
+}
+
+// Tab functionality
+function switchTab(tabName) {
+    currentTab = tabName;
+    // Update tab UI here if needed
+}
+
+function switchCustomerTab(tabName) {
+    currentCustomerTab = tabName;
+    // Update customer tab UI here if needed
+}
+
+// Video controls
+function togglePlay() {
+    isPlaying = !isPlaying;
+    // Update play/pause UI here if needed
+}
+
+// Utility functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    switch(e.key) {
+        case 'ArrowLeft':
+            if (currentPage === 2) {
+                prevSlide();
+            }
+            break;
+        case 'ArrowRight':
+            if (currentPage === 2) {
+                nextSlide();
+            }
+            break;
+        case 'Escape':
+            showPage(1);
+            break;
     }
 });
 
-// Add CSS animations via JavaScript
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes ripple {
-        0% {
-            transform: scale(0);
-            opacity: 1;
+// Resize handler
+window.addEventListener('resize', debounce(() => {
+    // Resize charts if needed
+    Object.values(charts).forEach(chart => {
+        if (chart) {
+            chart.resize();
         }
-        100% {
-            transform: scale(2);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes sparkle {
-        0% {
-            transform: translateY(0) scale(0);
-            opacity: 1;
-        }
-        50% {
-            transform: translateY(-20px) scale(1);
-            opacity: 1;
-        }
-        100% {
-            transform: translateY(-40px) scale(0);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
-
-// Console log for debugging
-console.log('Interactive homepage loaded successfully!');
+    });
+}, 250));
