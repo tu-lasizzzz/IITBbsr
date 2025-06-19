@@ -1,294 +1,457 @@
 
-// Global variables
+// Global Variables
 let currentPage = 1;
-let darkMode = false;
 let currentSlide = 0;
-let currentTab = 'Billing';
-let currentCustomerTab = 'PERPLEXITY';
+let currentTab = 'billing';
+let currentCustomerTab = 'perplexity';
 let isPlaying = false;
-let loadingTime = 0;
+let loadingTimer;
 let charts = {};
-
-// Slides data
-const slides = [
-    "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop"
-];
-
-// Chart data
-const chartData = {
-    bar: {
-        labels: ['Asia', 'Europe', 'Americas', 'Africa', 'Oceania'],
-        datasets: [{
-            label: 'Population (millions)',
-            data: [4641, 747, 1018, 1340, 45],
-            backgroundColor: [
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)'
-            ]
-        }]
-    },
-    pie: {
-        labels: ['Housing', 'Food', 'Transportation', 'Entertainment', 'Other'],
-        datasets: [{
-            data: [30, 25, 20, 15, 10],
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-        }]
-    },
-    line: {
-        labels: ['2000', '2005', '2010', '2015', '2020', '2025'],
-        datasets: [{
-            label: 'Growth Trend',
-            data: [10, 25, 40, 60, 80, 95],
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1,
-            fill: false
-        }]
-    }
-};
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
-    initializeLoader();
-    initializeEventListeners();
-    loadTheme();
+    initializeApp();
 });
 
-// Loading screen functionality
-function initializeLoader() {
-    const loadingScreen = document.getElementById('loading-screen');
-    const mainContent = document.getElementById('main-content');
-    const loadingTimeElement = document.getElementById('loading-time');
-    const loadingLetter = document.getElementById('loading-letter');
+function initializeApp() {
+    // Start loading sequence
+    startLoadingSequence();
     
-    // Start timer
+    // Initialize theme
+    initializeTheme();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Initialize charts
+    initializeCharts();
+}
+
+// Loading Screen
+function startLoadingSequence() {
+    let time = 0;
+    const timerElement = document.querySelector('.timer');
+    const letterL = document.querySelector('.letter-l');
+    
+    // Update timer
     const timer = setInterval(() => {
-        loadingTime += 0.1;
-        loadingTimeElement.textContent = loadingTime.toFixed(1) + 'ms';
+        time += 0.1;
+        timerElement.textContent = `${time.toFixed(1)}ms`;
     }, 100);
-
-    // Show L after 500ms
+    
+    // Show letter L after 500ms
     setTimeout(() => {
-        loadingLetter.classList.remove('hidden');
+        letterL.style.opacity = '1';
+        letterL.style.animationPlayState = 'running';
     }, 500);
-
+    
     // Complete loading after 3 seconds
     setTimeout(() => {
         clearInterval(timer);
-        loadingScreen.classList.add('hidden');
-        mainContent.classList.remove('hidden');
-        showPage(1);
-        initializeCharts();
+        completeLoading();
     }, 3000);
 }
 
-// Initialize event listeners
-function initializeEventListeners() {
-    // Theme toggle
-    document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
-
-    // Navigation buttons
-    document.querySelectorAll('.nav-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const page = parseInt(e.currentTarget.getAttribute('data-page'));
-            showPage(page);
-        });
-    });
-
-    // Page dots
-    document.querySelectorAll('.page-dot').forEach(dot => {
-        dot.addEventListener('click', (e) => {
-            const page = parseInt(e.currentTarget.getAttribute('data-page'));
-            showPage(page);
-        });
-    });
-
-    // Slide navigation
-    document.getElementById('prev-slide')?.addEventListener('click', prevSlide);
-    document.getElementById('next-slide')?.addEventListener('click', nextSlide);
-
-    // Slide indicators
-    document.querySelectorAll('.slide-indicator').forEach(indicator => {
-        indicator.addEventListener('click', (e) => {
-            const slide = parseInt(e.currentTarget.getAttribute('data-slide'));
-            goToSlide(slide);
-        });
-    });
-
-    // Chart hover effects
-    setupChartHoverEffects();
-}
-
-// Chart hover effects
-function setupChartHoverEffects() {
-    document.querySelectorAll('.chart-hover-card').forEach(card => {
-        card.addEventListener('mouseenter', (e) => {
-            const chartType = e.currentTarget.getAttribute('data-chart');
-            showHoverChart(chartType);
-        });
-    });
-}
-
-// Show hover chart
-function showHoverChart(type) {
-    const canvasId = `${type}-chart`;
-    const canvas = document.getElementById(canvasId);
+function completeLoading() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const mainContent = document.getElementById('main-content');
     
-    if (canvas && !charts[canvasId]) {
-        const ctx = canvas.getContext('2d');
-        
-        const config = {
-            type: type,
-            data: chartData[type],
+    loadingScreen.style.display = 'none';
+    mainContent.classList.remove('hidden');
+}
+
+// Theme Management
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.className = savedTheme;
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.classList.contains('light') ? 'light' : 'dark';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    document.body.className = newTheme;
+    localStorage.setItem('theme', newTheme);
+}
+
+// Event Listeners Setup
+function setupEventListeners() {
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+    
+    // Tab switching for BSS page
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            switchTab(tab);
+        });
+    });
+    
+    // Customer tab switching
+    document.querySelectorAll('.customer-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const customer = btn.dataset.customer;
+            switchCustomerTab(customer);
+        });
+    });
+    
+    // Play/pause button
+    const playBtn = document.getElementById('play-pause-btn');
+    if (playBtn) {
+        playBtn.addEventListener('click', togglePlayPause);
+    }
+    
+    // Chart hover events
+    document.querySelectorAll('.chart-container').forEach(container => {
+        const chartType = container.dataset.chart;
+        container.addEventListener('mouseenter', () => showChart(chartType));
+        container.addEventListener('mouseleave', () => hideChart(chartType));
+    });
+}
+
+// Page Navigation
+function goToPage(pageNum) {
+    // Hide current page
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // Show target page
+    const targetPage = document.getElementById(`page-${pageNum}`);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        currentPage = pageNum;
+    }
+    
+    // Update navigation dots
+    updateNavigationDots();
+}
+
+function updateNavigationDots() {
+    document.querySelectorAll('.nav-dot').forEach((dot, index) => {
+        if (index + 1 === currentPage) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+}
+
+// Image Slider Functions
+function nextSlide() {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    
+    // Remove active class from current slide
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    
+    // Move to next slide
+    currentSlide = (currentSlide + 1) % slides.length;
+    
+    // Add active class to new slide
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+}
+
+function prevSlide() {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    
+    // Remove active class from current slide
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    
+    // Move to previous slide
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    
+    // Add active class to new slide
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+}
+
+function currentSlideFunc(slideNum) {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    
+    // Remove active class from all slides and dots
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    // Set current slide
+    currentSlide = slideNum - 1;
+    
+    // Add active class to target slide and dot
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+}
+
+// Tab Switching Functions
+function switchTab(tabName) {
+    // Remove active class from all tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked tab
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    currentTab = tabName;
+    
+    // You can add content switching logic here
+    console.log(`Switched to ${tabName} tab`);
+}
+
+function switchCustomerTab(customerName) {
+    // Remove active class from all customer tabs
+    document.querySelectorAll('.customer-tab').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked tab
+    document.querySelector(`[data-customer="${customerName}"]`).classList.add('active');
+    
+    currentCustomerTab = customerName;
+    
+    // You can add content switching logic here
+    console.log(`Switched to ${customerName} customer`);
+}
+
+// Play/Pause Functionality
+function togglePlayPause() {
+    const playBtn = document.getElementById('play-pause-btn');
+    
+    if (isPlaying) {
+        playBtn.textContent = '▶️';
+        isPlaying = false;
+        console.log('Video paused');
+    } else {
+        playBtn.textContent = '⏸️';
+        isPlaying = true;
+        console.log('Video playing');
+    }
+}
+
+// Chart Initialization and Management
+function initializeCharts() {
+    // Chart data
+    const chartData = {
+        bar: {
+            labels: ['Asia', 'Europe', 'Americas', 'Africa', 'Oceania'],
+            datasets: [{
+                label: 'Population (millions)',
+                data: [4641, 747, 1018, 1340, 45],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(255, 205, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)'
+                ]
+            }]
+        },
+        pie: {
+            labels: ['Housing', 'Food', 'Transportation', 'Entertainment', 'Other'],
+            datasets: [{
+                data: [30, 25, 20, 15, 10],
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ]
+            }]
+        },
+        line: {
+            labels: ['2000', '2005', '2010', '2015', '2020', '2025'],
+            datasets: [{
+                label: 'Growth Trend',
+                data: [10, 25, 40, 60, 80, 95],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1,
+                fill: true
+            }]
+        }
+    };
+    
+    // Chart options
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: 'white'
+                }
+            },
+            title: {
+                display: true,
+                color: 'white'
+            }
+        },
+        scales: {
+            y: {
+                ticks: {
+                    color: 'white'
+                },
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.2)'
+                }
+            },
+            x: {
+                ticks: {
+                    color: 'white'
+                },
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.2)'
+                }
+            }
+        }
+    };
+    
+    // Initialize charts
+    const barCtx = document.getElementById('bar-chart');
+    const pieCtx = document.getElementById('pie-chart');
+    const lineCtx = document.getElementById('line-chart');
+    
+    if (barCtx) {
+        charts.bar = new Chart(barCtx, {
+            type: 'bar',
+            data: chartData.bar,
+            options: {
+                ...chartOptions,
+                plugins: {
+                    ...chartOptions.plugins,
+                    title: {
+                        ...chartOptions.plugins.title,
+                        text: 'Population by Continent'
+                    }
+                }
+            }
+        });
+    }
+    
+    if (pieCtx) {
+        charts.pie = new Chart(pieCtx, {
+            type: 'pie',
+            data: chartData.pie,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top'
+                        position: 'top',
+                        labels: {
+                            color: 'white'
+                        }
                     },
                     title: {
                         display: true,
-                        text: type.charAt(0).toUpperCase() + type.slice(1) + ' Chart'
+                        text: 'Expense Breakdown',
+                        color: 'white'
                     }
                 }
             }
-        };
-
-        charts[canvasId] = new Chart(ctx, config);
+        });
+    }
+    
+    if (lineCtx) {
+        charts.line = new Chart(lineCtx, {
+            type: 'line',
+            data: chartData.line,
+            options: {
+                ...chartOptions,
+                plugins: {
+                    ...chartOptions.plugins,
+                    title: {
+                        ...chartOptions.plugins.title,
+                        text: 'Decade Growth Trend'
+                    }
+                }
+            }
+        });
     }
 }
 
-// Initialize charts
-function initializeCharts() {
-    // Charts will be created on hover
+function showChart(chartType) {
+    // Charts are already initialized and visible on hover via CSS
+    // This function can be used for additional logic if needed
+    console.log(`Showing ${chartType} chart`);
 }
 
-// Theme management
-function toggleDarkMode() {
-    darkMode = !darkMode;
-    saveTheme();
-    applyTheme();
+function hideChart(chartType) {
+    // Charts are hidden via CSS when not hovering
+    // This function can be used for additional logic if needed
+    console.log(`Hiding ${chartType} chart`);
 }
 
-function loadTheme() {
-    const savedMode = localStorage.getItem('darkMode');
-    if (savedMode) {
-        darkMode = JSON.parse(savedMode);
-        applyTheme();
-    }
-}
-
-function saveTheme() {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-}
-
-function applyTheme() {
-    const mainContent = document.getElementById('main-content');
-    const moonIcon = document.getElementById('moon-icon');
-    const sunIcon = document.getElementById('sun-icon');
-
-    if (darkMode) {
-        mainContent.classList.remove('bg-gradient-to-br', 'from-blue-900', 'via-blue-800', 'to-blue-900');
-        mainContent.classList.add('bg-slate-900');
-        moonIcon.classList.add('hidden');
-        sunIcon.classList.remove('hidden');
-    } else {
-        mainContent.classList.remove('bg-slate-900');
-        mainContent.classList.add('bg-gradient-to-br', 'from-blue-900', 'via-blue-800', 'to-blue-900');
-        moonIcon.classList.remove('hidden');
-        sunIcon.classList.add('hidden');
-    }
-}
-
-// Page navigation
-function showPage(pageNumber) {
-    // Hide all pages
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-
-    // Show selected page
-    const targetPage = document.getElementById(`page-${pageNumber}`);
-    if (targetPage) {
-        targetPage.classList.add('active');
-        currentPage = pageNumber;
-    }
-
-    // Update page dots
-    updatePageDots();
-}
-
-function updatePageDots() {
-    document.querySelectorAll('.page-dot').forEach(dot => {
-        const page = parseInt(dot.getAttribute('data-page'));
-        if (page === currentPage) {
-            dot.classList.remove('bg-opacity-30', 'hover:bg-opacity-50');
-            dot.classList.add('bg-white');
-        } else {
-            dot.classList.remove('bg-white');
-            dot.classList.add('bg-opacity-30', 'hover:bg-opacity-50');
+// Auto-slide functionality (optional)
+function startAutoSlide() {
+    setInterval(() => {
+        if (currentPage === 2) { // Only auto-slide on gallery page
+            nextSlide();
         }
-    });
+    }, 5000); // Change slide every 5 seconds
 }
 
-// Slide functionality
-function nextSlide() {
-    currentSlide = (currentSlide + 1) % slides.length;
-    updateSlide();
-}
-
-function prevSlide() {
-    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-    updateSlide();
-}
-
-function goToSlide(slideIndex) {
-    currentSlide = slideIndex;
-    updateSlide();
-}
-
-function updateSlide() {
-    const currentSlideImg = document.getElementById('current-slide');
-    if (currentSlideImg) {
-        currentSlideImg.src = slides[currentSlide];
-        currentSlideImg.alt = `Slide ${currentSlide + 1}`;
+// Keyboard Navigation
+document.addEventListener('keydown', function(event) {
+    switch(event.key) {
+        case 'ArrowRight':
+            if (currentPage < 7) {
+                goToPage(currentPage + 1);
+            }
+            break;
+        case 'ArrowLeft':
+            if (currentPage > 1) {
+                goToPage(currentPage - 1);
+            }
+            break;
+        case ' ': // Spacebar
+            event.preventDefault();
+            if (currentPage === 3) {
+                togglePlayPause();
+            }
+            break;
     }
+});
 
-    // Update indicators
-    document.querySelectorAll('.slide-indicator').forEach((indicator, index) => {
-        if (index === currentSlide) {
-            indicator.classList.remove('bg-gray-300');
-            indicator.classList.add('bg-blue-500');
+// Touch/Swipe Support (basic)
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', function(event) {
+    touchStartX = event.changedTouches[0].screenX;
+});
+
+document.addEventListener('touchend', function(event) {
+    touchEndX = event.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swipe left - next page
+            if (currentPage < 7) {
+                goToPage(currentPage + 1);
+            }
         } else {
-            indicator.classList.remove('bg-blue-500');
-            indicator.classList.add('bg-gray-300');
+            // Swipe right - previous page
+            if (currentPage > 1) {
+                goToPage(currentPage - 1);
+            }
         }
-    });
+    }
 }
 
-// Tab functionality
-function switchTab(tabName) {
-    currentTab = tabName;
-    // Update tab UI here if needed
-}
-
-function switchCustomerTab(tabName) {
-    currentCustomerTab = tabName;
-    // Update customer tab UI here if needed
-}
-
-// Video controls
-function togglePlay() {
-    isPlaying = !isPlaying;
-    // Update play/pause UI here if needed
-}
-
-// Utility functions
+// Utility Functions
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -301,31 +464,19 @@ function debounce(func, wait) {
     };
 }
 
-// Keyboard navigation
-document.addEventListener('keydown', (e) => {
-    switch(e.key) {
-        case 'ArrowLeft':
-            if (currentPage === 2) {
-                prevSlide();
-            }
-            break;
-        case 'ArrowRight':
-            if (currentPage === 2) {
-                nextSlide();
-            }
-            break;
-        case 'Escape':
-            showPage(1);
-            break;
-    }
-});
-
-// Resize handler
+// Window resize handler
 window.addEventListener('resize', debounce(() => {
-    // Resize charts if needed
+    // Resize charts if they exist
     Object.values(charts).forEach(chart => {
         if (chart) {
             chart.resize();
         }
     });
 }, 250));
+
+// Expose functions to global scope for HTML onclick handlers
+window.goToPage = goToPage;
+window.nextSlide = nextSlide;
+window.prevSlide = prevSlide;
+window.currentSlide = currentSlideFunc;
+window.togglePlayPause = togglePlayPause;
