@@ -4,66 +4,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Dashboard - Trusted by Thousands</title>
+    <title>zenith-site-forge</title>
+    <meta name="description" content="Lovable Generated Project">
+    <meta name="author" content="Lovable">
+    
+    <meta property="og:title" content="zenith-site-forge">
+    <meta property="og:description" content="Lovable Generated Project">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@lovable_dev">
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Stats Section -->
-        <section class="stats-section">
-            <div class="stat-card">
-                <div class="stat-icon">⭐</div>
-                <div class="stat-content">
-                    <span class="stat-number">4.8</span>
-                    <span class="stat-text">Rating on Capterra</span>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">⭐</div>
-                <div class="stat-content">
-                    <span class="stat-number">4.8</span>
-                    <span class="stat-text">Rating on Google</span>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">📝</div>
-                <div class="stat-content">
-                    <span class="stat-number">350+</span>
-                    <span class="stat-text">Reviews on Xero</span>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">🧾</div>
-                <div class="stat-content">
-                    <span class="stat-number">550+</span>
-                    <span class="stat-text">Reviews on Intuit QuickBooks</span>
-                </div>
-            </div>
-        </section>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
+        <div class="absolute bottom-8 left-8 bg-white text-black p-4 font-mono text-2xl min-w-[200px] text-center">
+            <span id="loading-time">0.0ms</span>
+        </div>
+        <div class="text-white text-8xl font-bold">
+            <div id="loading-letter" class="hidden animate-bounce">L</div>
+        </div>
+    </div>
 
-        <!-- Main Heading Section -->
-        <section class="heading-section">
-            <h1 class="interactive-heading">
-                <span class="word" data-word="Create">Create</span>
-                <span class="word" data-word="reports,">reports,</span>
-                <span class="word" data-word="forecasts,">forecasts,</span>
-                <span class="word" data-word="dashboards">dashboards</span>
-                <span class="word" data-word="&">&</span>
-                <span class="word" data-word="consolidations">consolidations</span>
-            </h1>
-            <p class="subtitle">Now with AI-insights</p>
-            <button class="cta-button" id="ctaButton">
-                        Start 14-day free trial
-                    </button>
-                    
-                    <div class="secondary-link">
-                        <span class="link-icon">👁</span>
-                        <a href="#" class="see-more-link">See what we do</a>
+    <!-- Main Content -->
+    <div id="main-content" class="hidden min-h-screen transition-colors duration-300 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white">
+        <!-- Dark/Light Mode Toggle -->
+        <button id="theme-toggle" class="fixed top-4 right-4 z-40 p-3 rounded-full bg-white bg-opacity-10 backdrop-blur-sm border border-white border-opacity-20 hover:bg-opacity-20 transition-all duration-300">
+            <svg id="moon-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+            <svg id="sun-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+        </button>
+
+        <!-- Page 1: Hero + Hover Graphs + AI Section -->
+        <div id="page-1" class="page min-h-screen">
+            <div class="container mx-auto px-6 py-16">
+                <!-- Rating Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16 max-w-6xl mx-auto">
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 text-center border border-white border-opacity-20">
+                        <div class="flex items-center justify-center mb-2">
+                            <span class="text-yellow-400 mr-1">⭐</span>
+                            <span class="text-lg font-bold">4.8 rating on</span>
+                        </div>
+                        <div class="text-sm opacity-90">Capterra</div>
                     </div>
-        </section>
+                    
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 text-center border border-white border-opacity-20">
+                        <div class="flex items-center justify-center mb-2">
+                            <span class="text-yellow-400 mr-1">⭐</span>
+                            <span class="text-lg font-bold">4.8 rating on</span>
+                        </div>
+                        <div class="text-sm opacity-90">G2</div>
+                    </div>
+                    
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 text-center border border-white border-opacity-20">
+                        <div class="flex items-center justify-center mb-2">
+                            <span class="text-yellow-400 mr-1">⭐</span>
+                            <span class="text-lg font-bold">350+ reviews on</span>
+                        </div>
+                        <div class="text-sm opacity-90">Xero</div>
+                    </div>
+                    
+                    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 text-center border border-white border-opacity-20">
+                        <div class="flex items-center justify-center mb-2">
+                            <span class="text-yellow-400 mr-1">⭐</span>
+                            <span class="text-lg font-bold">550+ reviews on</span>
+                        </div>
+                        <div class="text-sm opacity-90">QuickBooks</div>
+                    </div>
+                </div>
+
+                <!-- Main Heading -->
+                <div class="text-center mb-16 max-w-5xl mx-auto">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-8 leading-tight">
+                        Create reports, forecasts,<br>
+                        dashboards & consolidations
+                    </h1>
+                </div>
+
+                <!-- Hover Interaction Section -->
+                <div class="text-center mb-16">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                        <div class="chart-hover-card relative group bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-6 h-48 cursor-pointer border border-white border-opacity-20 hover:border-opacity-40 transition-all duration-300" data-chart="bar">
+                            <h3 class="text-xl font-semibold mb-4">Population</h3>
+                            <p class="opacity-80 text-sm">Hover to view bar chart</p>
+                            <div class="chart-overlay absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="bg-white p-6 rounded-lg w-80 h-60">
+                                    <canvas id="bar-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-hover-card relative group bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-6 h-48 cursor-pointer border border-white border-opacity-20 hover:border-opacity-40 transition-all duration-300" data-chart="pie">
+                            <h3 class="text-xl font-semibold mb-4">Expense</h3>
+                            <p class="opacity-80 text-sm">Hover to view pie chart</p>
+                            <div class="chart-overlay absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="bg-white p-6 rounded-lg w-80 h-60">
+                                    <canvas id="pie-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-hover-card relative group bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-6 h-48 cursor-pointer border border-white border-opacity-20 hover:border-opacity-40 transition-all duration-300" data-chart="line">
+                            <h3 class="text-xl font-semibold mb-4">Decade Trend</h3>
+                            <p class="opacity-80 text-sm">Hover to view line chart</p>
+                            <div class="chart-overlay absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="bg-white p-6 rounded-lg w-80 h-60">
+                                    <canvas id="line-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Section -->
+                <div class="text-center mb-16">
+                    <div class="flex items-center justify-center mb-6">
+                        <span class="text-2xl mr-3">✨</span>
+                        <h2 class="text-2xl md:text-3xl font-bold">Now with AI-insights</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-300 inline-flex items-center">
+                            Start 14-day free trial
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                        
+                        <div>
+                            <button class="nav-button text-white underline hover:no-underline transition-all duration-300 inline-flex items-center" data-page="2">
+                                <span class="mr-2">📋</span>
+                                See what we do
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Button -->
+            <button class="nav-button fixed bottom-8 right-8 bg-red-500 hover:bg-red-600 text-white p-4 rounded-full transition-colors duration-300 shadow-lg" data-page="2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+
+            <!-- Footer -->
+            <footer class="bg-black bg-opacity-20 backdrop-blur-sm py-8">
+                <div class="container mx-auto px-6 flex justify-center space-x-8">
+                    <svg class="w-6 h-6 hover:opacity-80 cursor-pointer transition-opacity" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    <svg class="w-6 h-6 hover:opacity-80 cursor-pointer transition-opacity" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    <svg class="w-6 h-6 hover:opacity-80 cursor-pointer transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    <svg class="w-6 h-6 hover:opacity-80 cursor-pointer transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Additional pages content would go here -->
+        <div id="page-2" class="page hidden min-h-screen bg-white text-gray-900 py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-center mb-12">Image Gallery</h2>
+                <div class="relative max-w-4xl mx-auto">
+                    <div class="overflow-hidden rounded-lg">
+                        <img id="current-slide" src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop" alt="Slide 1" class="w-full h-96 object-cover transition-transform duration-500">
+                    </div>
+                    <button id="prev-slide" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <button id="next-slide" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <div id="slide-indicators" class="flex justify-center mt-6 space-x-2">
+                        <button class="slide-indicator w-3 h-3 rounded-full bg-blue-500" data-slide="0"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full bg-gray-300" data-slide="1"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full bg-gray-300" data-slide="2"></button>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <button class="nav-button bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg transition-colors" data-page="3">
+                        Next Page 
+                        <svg class="inline w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Navigation Dots -->
+        <div class="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-30">
+            <button class="page-dot w-3 h-3 rounded-full bg-white" data-page="1"></button>
+            <button class="page-dot w-3 h-3 rounded-full bg-white bg-opacity-30 hover:bg-opacity-50" data-page="2"></button>
+        </div>
     </div>
 
     <script src="script.js"></script>
